@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order confirmed</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff5d73'/%3E%3Cstop offset='1' stop-color='%237c5cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Poppins,sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="index.html"><span class="logo-mark">E</span>E-shop</a>
+  <div class="links"><a href="index.html">Shop</a><a href="orders.html">My orders</a></div>
+</nav>
+
+<div class="page-narrow">
+  <div id="confirmation-content">Loading...</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+async function loadConfirmation() {
+  const el = document.getElementById('confirmation-content');
+  const orderId = localStorage.getItem('lastOrderId');
+  if (!orderId) {
+    el.innerHTML = '<div class="empty-state">No recent order found.</div>';
+    return;
+  }
+  try {
+    const order = await apiRequest('/orders/' + orderId);
+    el.innerHTML = `
+      <div style="text-align:center; padding: 20px 0 30px;">
+        <div style="font-size:40px; color:#1e6b1e;">&#10003;</div>
+        <h1 style="font-size:22px; margin-top:8px;">Order confirmed</h1>
+        <p style="color:#5c5a52;">Order #${order._id.slice(-6).toUpperCase()}</p>
+      </div>
+      <div class="form-page" style="max-width:none;">
+        <h1 style="font-size:16px; text-align:left;">Order summary</h1>
+        ${order.items.map(i => `<div class="summary-row"><span>${i.name} &times; ${i.qty}</span><span>$${(i.price * i.qty).toFixed(2)}</span></div>`).join('')}
+        <div class="summary-row total"><span>Total</span><span>$${order.total.toFixed(2)}</span></div>
+      </div>
+      <div class="form-page" style="max-width:none;">
+        <h1 style="font-size:16px; text-align:left;">Delivery address</h1>
+        <p>${order.shippingAddress.fullName}</p>
+        <p style="color:#5c5a52; font-size:14px;">${order.shippingAddress.street}, ${order.shippingAddress.city} ${order.shippingAddress.zip}</p>
+        <p style="color:#5c5a52; font-size:14px;">${order.shippingAddress.phone}</p>
+      </div>
+      <button class="btn full" onclick="window.location.href='track-order.html?id=${order._id}'">Track order</button>
+    `;
+  } catch (err) {
+    el.innerHTML = `<p>${err.message}</p>`;
+  }
+}
+
+loadConfirmation();
+</script>
+</body>
+</html>

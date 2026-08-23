@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Address</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+<body>
+
+<header class="navbar">
+
+<div class="logo">
+<i class="fa-solid fa-cart-shopping"></i>
+<span>ShopKart</span>
+</div>
+
+<div class="nav-icons">
+<button onclick="location.href='index.html'">
+Home
+</button>
+
+<button onclick="location.href='cart.html'">
+Cart
+</button>
+</div>
+
+</header>
+
+<div class="address-container">
+
+<h2>Delivery Address</h2>
+
+<form id="addressForm">
+
+<input type="text" id="fullName" placeholder="Full Name" required>
+
+<input type="text" id="mobile" placeholder="Mobile Number" required>
+
+<input type="text" id="house" placeholder="House No / Building" required>
+
+<input type="text" id="street" placeholder="Street" required>
+
+<input type="text" id="area" placeholder="Area" required>
+
+<input type="text" id="city" placeholder="City" required>
+
+<input type="text" id="state" placeholder="State" required>
+
+<input type="text" id="pincode" placeholder="Pincode" required>
+
+<button type="submit">
+Save Address
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+    window.location.href = "login.html?next=address.html";
+}
+
+document.getElementById("addressForm").addEventListener("submit", saveAddress);
+
+async function saveAddress(e) {
+
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    const address = {
+
+        fullName: document.getElementById("fullName").value,
+
+        phone: document.getElementById("mobile").value,
+
+        house: document.getElementById("house").value,
+
+        street: document.getElementById("street").value,
+
+        area: document.getElementById("area").value,
+
+        city: document.getElementById("city").value,
+
+        state: document.getElementById("state").value,
+
+        zip: document.getElementById("pincode").value,
+
+        isDefault: true
+
+    };
+
+    try {
+
+        const res = await fetch("http://localhost:5000/api/addresses", {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json",
+
+                "Authorization": "Bearer " + token
+
+            },
+
+            body: JSON.stringify(address)
+
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.message || "Unable to save address");
+            return;
+        }
+
+        alert("✅ Address Saved Successfully");
+
+        window.location.href = "checkout.html";
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Server not responding.");
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

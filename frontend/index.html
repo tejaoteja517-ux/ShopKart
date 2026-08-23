@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopKart - Online Shopping</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<header class="navbar">
+
+    <div class="logo">
+
+        <i class="fa-solid fa-cart-shopping"></i>
+
+        <span>ShopKart</span>
+
+    </div>
+
+    <div class="search-container">
+
+        <input
+            type="text"
+            id="search"
+            placeholder="Search for products...">
+
+        <button>
+
+            <i class="fa fa-search"></i>
+
+        </button>
+
+    </div>
+
+  <div class="nav-icons">
+
+    <a href="login.html" id="loginBtn" class="login-btn">
+        <i class="fa-solid fa-user"></i>
+        Login
+    </a>
+
+    <div id="userInfo" style="display:none;" class="user-box">
+
+        <i class="fa-solid fa-circle-user"></i>
+
+        <a href="profile.html" id="userName" style="color:white;text-decoration:none;"></a>
+
+        <button onclick="logout()" class="logout-btn">
+            Logout
+        </button>
+
+    </div>
+
+    <button id="wishlistBtn">
+        <i class="fa-regular fa-heart"></i>
+        Wishlist
+    </button>
+
+    <button onclick="location.href='cart.html'">
+        <i class="fa-solid fa-cart-shopping"></i>
+        Cart
+        <span id="cart-count">0</span>
+    </button>
+
+</div>  
+<div class="nav-user">
+
+    <a href="login.html" id="loginBtn">
+        <i class="fa-solid fa-user"></i>
+        Login
+    </a>
+
+    <div id="userInfo" style="display:none;">
+
+        <i class="fa-solid fa-circle-user"></i>
+
+        <span id="userName"></span>
+
+        <button onclick="logout()">Logout</button>
+
+    </div>
+
+</div>
+</header>
+
+<!-- ================= HERO ================= -->
+
+<section class="hero">
+
+    <div class="hero-text">
+
+        <h1>
+
+            hello boddy!
+
+        </h1>
+
+        <p>
+
+            Electronics • Fashion • Home • Sports
+
+        </p>
+
+        <button>
+
+            Shop Now
+
+        </button>
+
+    </div>
+
+</section>
+
+<!-- ================= CATEGORIES ================= -->
+
+<section class="categories">
+
+    <button class="category-btn active"
+
+        data-category="All">
+
+        All
+
+    </button>
+
+    <button class="category-btn"
+
+        data-category="Electronics">
+
+        Electronics
+
+    </button>
+
+    <button class="category-btn"
+
+        data-category="Fashion">
+
+        Fashion
+
+    </button>
+
+    <button class="category-btn"
+
+        data-category="Footwear">
+
+        Footwear
+
+    </button>
+
+    <button class="category-btn"
+
+        data-category="Furniture">
+
+        Furniture
+
+    </button>
+
+    <button class="category-btn"
+
+        data-category="Home">
+
+        Home
+
+    </button>
+
+    <button class="category-btn"
+
+        data-category="Sports">
+
+        Sports
+
+    </button>
+
+    <button class="category-btn"
+
+        data-category="Bags">
+
+        Bags
+
+    </button>
+
+</section>
+
+<!-- ================= PRODUCTS ================= -->
+
+<section class="products">
+
+    <h2>
+
+        Featured Products
+
+    </h2>
+
+    <div id="product-grid"
+
+         class="product-grid">
+
+        <!-- Products will load here -->
+
+    </div>
+
+</section>
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <p>
+
+        © 2026 ShopKart
+
+        | Built using HTML, CSS, JavaScript,
+
+        Node.js, Express & MongoDB
+        |developed  by Teja Nayaka
+
+    </p>
+
+</footer>
+
+<!-- JavaScript will be added in Part 2 -->
+ <script>
+
+const API = "/api/products";
+
+let products=[];
+let filteredProducts=[];
+let wishlist=[];
+let cart=[];
+
+async function loadProducts(){
+
+    try{
+
+        const res=await fetch(API);
+
+        products=await res.json();
+
+        filteredProducts=products;
+
+        renderProducts(products);
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+function renderProducts(items){
+
+    const grid=document.getElementById("product-grid");
+
+    grid.innerHTML=items.map(p=>`
+
+<div class="card">
+
+<div class="wishlist"
+
+onclick="toggleWishlist('${p._id}')">
+
+<i class="fa-regular fa-heart"></i>
+
+</div>
+
+<a href="product.html?id=${p._id}">
+
+<img src="${p.image}"
+
+class="product-image"
+
+alt="${p.name}">
+
+</a>
+
+<div class="card-body">
+
+<h3>${p.name}</h3>
+
+<p class="category">
+
+${p.category}
+
+</p>
+
+<div class="rating">
+
+⭐ ${p.rating}
+
+<span>
+
+(${p.reviews} Reviews)
+
+</span>
+
+</div>
+
+<h2 class="price">
+
+₹${Number(p.price).toLocaleString("en-IN")}
+
+</h2>
+
+<div class="btn-group">
+
+<button
+
+class="cart-btn"
+
+onclick="addToCart('${p._id}')">
+
+<i class="fa fa-cart-shopping"></i>
+
+Add to Cart
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+document.getElementById("search")
+
+.addEventListener("input",e=>{
+
+const text=e.target.value.toLowerCase();
+
+filteredProducts=products.filter(p=>
+
+p.name.toLowerCase().includes(text)
+
+||
+
+p.category.toLowerCase().includes(text)
+
+);
+
+renderProducts(filteredProducts);
+
+});
+
+document
+
+.querySelectorAll(".category-btn")
+
+.forEach(btn=>{
+
+btn.onclick=()=>{
+
+document
+
+.querySelectorAll(".category-btn")
+
+.forEach(b=>b.classList.remove("active"));
+
+btn.classList.add("active");
+
+const cat=btn.dataset.category;
+
+if(cat==="All"){
+
+filteredProducts=products;
+
+}else{
+
+filteredProducts=
+
+products.filter(
+
+p=>p.category===cat
+
+);
+
+}
+
+renderProducts(filteredProducts);
+
+};
+
+});
+
+function addToCart(id){
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if(!user){
+
+        window.location.href = "login.html?next=index.html";
+
+        return;
+
+    }
+
+    cart.push(id);
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+
+    document.getElementById("cart-count").innerText = cart.length;
+
+    alert("Product added to cart");
+
+}
+
+function toggleWishlist(id){
+
+let i=wishlist.indexOf(id);
+
+if(i==-1){
+
+wishlist.push(id);
+
+}else{
+
+wishlist.splice(i,1);
+
+}
+
+localStorage.setItem(
+
+"wishlist",
+
+JSON.stringify(wishlist)
+
+);
+
+}
+function logout(){
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
+    window.location.reload();
+
+}
+
+window.onload = () => {
+
+    cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+    document.getElementById("cart-count").innerText = cart.length;
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if(user){
+
+        document.getElementById("loginBtn").style.display = "none";
+
+        document.getElementById("userInfo").style.display = "flex";
+
+        document.getElementById("userName").innerText = user.name;
+
+    }
+
+    loadProducts();
+
+};
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track order</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff5d73'/%3E%3Cstop offset='1' stop-color='%237c5cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Poppins,sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="index.html"><span class="logo-mark">E</span>E-shop</a>
+  <div class="links"><a href="index.html">Shop</a><a href="orders.html">My orders</a></div>
+</nav>
+
+<div class="page-narrow">
+  <div id="tracking-content">Loading...</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+const orderId = new URLSearchParams(window.location.search).get('id') || localStorage.getItem('lastOrderId');
+
+async function loadTracking() {
+  const el = document.getElementById('tracking-content');
+  if (!orderId) {
+    el.innerHTML = '<div class="empty-state">No order selected.</div>';
+    return;
+  }
+  try {
+    const order = await apiRequest('/orders/' + orderId);
+    el.innerHTML = `
+      <h1 style="margin-bottom:6px;">Track order</h1>
+      <p style="color:#5c5a52; margin-bottom:20px;">Order #${order._id.slice(-6).toUpperCase()}</p>
+      <div class="img-placeholder" style="height:100px; margin-bottom:20px;">Map / delivery route</div>
+      <div class="timeline">
+        ${order.tracking.map(step => `
+          <div class="timeline-step ${step.status}">
+            <div class="timeline-dot"></div>
+            <div>
+              <div class="label">${step.label}</div>
+              ${step.timestamp ? `<div class="time">${new Date(step.timestamp).toLocaleString()}</div>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    el.innerHTML = `<p>${err.message}</p>`;
+  }
+}
+
+loadTracking();
+</script>
+</body>
+</html>
