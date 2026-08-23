@@ -2,7 +2,7 @@
 A modern full-stack e-commerce demo built with HTML, CSS, JavaScript, Node.js, Express.js, and MongoDB, covering the complete shopping journey from product discovery to order tracking.
 
 ✨ Overview
-ShopKart is a full-stack e-commerce application designed to demonstrate a realistic online shopping workflow.
+ShopKart is a full-stack e-commerce application designed to demonstrate a realistic online shopping workflow
 
 The application supports:
 
